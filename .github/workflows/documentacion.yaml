@@ -8,30 +8,33 @@ on:
     branches:
       - main
 jobs:
-  compila:
+  build-and-test:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4.2.2
 
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v4.2.2
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
-      
-      - name: Compilar
-        run: dotnet build --no-restore
-  crear-pdf:
-    runs-on: ubuntu-latest
-    needs: compila
-    steps:
-      - uses: actions/checkout@v4.2.2
 
-      - uses: baileyjm02/markdown-to-pdf-action@v1.0.0
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore
+
+  convert-to-pdf:
+    name: Build PDF
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: baileyjm02/markdown-to-pdf@v1
         with:
           input_dir: docs
-          output_dir: pdf
-           # Default is true, can set to false to only get PDF files
+          output_dir: pdfs
+          # Default is true, can set to false to only get PDF files
           build_html: false
       - uses: actions/upload-artifact@v4
         with:
